@@ -16,10 +16,6 @@ class AMPTableViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        for var i=0; i<=10; i++ {
-            
-        }
         
         for i in 0..<10 {
             
@@ -51,18 +47,18 @@ class AMPTableViewController: UITableViewController {
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return 1
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return dataArray.count
     }
 
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let obj = dataArray[indexPath.row]
         // All optionals are ensured to have values, so we can safely unwrap
         cell.textLabel!.text = obj.name!;
@@ -84,7 +80,7 @@ class AMPTableViewController: UITableViewController {
         return cell
     }
 
-    func viewForDisclosureForState(isExpanded:Bool)->UIView{
+    func viewForDisclosureForState(_ isExpanded:Bool)->UIView{
         
         var imageName:String = ""
         if(isExpanded)
@@ -95,14 +91,14 @@ class AMPTableViewController: UITableViewController {
         {
             imageName = "ArrowR_blue";
         }
-        let view = UIView(frame: CGRectMake(0, 0, 40, 40))
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
         let imageView = UIImageView(image: UIImage(named: imageName))
-        imageView.frame = CGRectMake(0, 6, 24, 24)
+        imageView.frame = CGRect(x: 0, y: 6, width: 24, height: 24)
         view.addSubview(imageView)
         return view
     }
 
-    func fetchChildrenforParent(parentProduct:AMPGenericObject){
+    func fetchChildrenforParent(_ parentProduct:AMPGenericObject){
         
         // If canBeExpanded then only we need to create child
         if(parentProduct.canBeExpanded)
@@ -156,28 +152,28 @@ class AMPTableViewController: UITableViewController {
         }
     }
 
-    func collapseCellsFromIndexOf(prod:AMPGenericObject,indexPath:NSIndexPath,tableView:UITableView)->Void{
+    func collapseCellsFromIndexOf(_ prod:AMPGenericObject,indexPath:IndexPath,tableView:UITableView)->Void{
         
         // Find the number of childrens opened under the parent recursively as there can be expanded children also
         let collapseCol = self.numberOfCellsToBeCollapsed(prod)
         // Find the end index by adding the count to start index+1
         let end = indexPath.row + 1 + collapseCol
         // Find the range from the parent index and the length to be removed.
-        let collapseRange =  Range(start: indexPath.row+1, end: end)
+        let collapseRange =  ((indexPath.row+1) ..< end)
         // Remove all the objects in that range from the main array so that number of rows are maintained properly
-        dataArray.removeRange(collapseRange)
+        dataArray.removeSubrange(collapseRange)
         prod.isExpanded = false
         // Create index paths for the number of rows to be removed
-        var indexPaths = [NSIndexPath]()
+        var indexPaths = [IndexPath]()
         for i in 0..<collapseRange.count {
-            indexPaths.append(NSIndexPath.init(forRow: collapseRange.startIndex+i, inSection: 0))
+            indexPaths.append(IndexPath.init(row: collapseRange.lowerBound+i, section: 0))
         }
         // Animate and delete
-        tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: .Left)
+        tableView.deleteRows(at: indexPaths, with: .left)
         
     }
     
-    func expandCellsFromIndexOf(prod:AMPGenericObject,indexPath:NSIndexPath,tableView:UITableView)->Void{
+    func expandCellsFromIndexOf(_ prod:AMPGenericObject,indexPath:IndexPath,tableView:UITableView)->Void{
         
         // Create dummy children
         self.fetchChildrenforParent(prod)
@@ -190,23 +186,23 @@ class AMPTableViewController: UITableViewController {
             var i = 0;
             // Insert all the child to the main array just after the parent
             for prodData in prod.children {
-                dataArray.insert(prodData, atIndex: indexPath.row+i+1)
-                i++;
+                dataArray.insert(prodData, at: indexPath.row+i+1)
+                i += 1;
             }
             // Find the range for insertion
             let expandedRange = NSMakeRange(indexPath.row, i)
             
-            var indexPaths = [NSIndexPath]()
+            var indexPaths = [IndexPath]()
             // Create index paths for the range
             for i in 0..<expandedRange.length {
-                indexPaths.append(NSIndexPath.init(forRow: expandedRange.location+i+1, inSection: 0))
+                indexPaths.append(IndexPath.init(row: expandedRange.location+i+1, section: 0))
             }
             // Insert the rows
-            tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Left)
+            tableView.insertRows(at: indexPaths, with: .left)
         }
     }
     
-    func numberOfCellsToBeCollapsed(prod:AMPGenericObject)->Int{
+    func numberOfCellsToBeCollapsed(_ prod:AMPGenericObject)->Int{
         
         var total = 0
         
@@ -226,10 +222,10 @@ class AMPTableViewController: UITableViewController {
         return total
     }
 
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let prod = dataArray[indexPath.row]
-        let selectedCell = tableView.cellForRowAtIndexPath(indexPath)
+        let selectedCell = tableView.cellForRow(at: indexPath)
         
         if(prod.canBeExpanded)
         {

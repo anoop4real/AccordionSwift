@@ -19,9 +19,9 @@ class AMPGenericObject: NSObject {
     var children:[AMPGenericObject] = []
     
     enum ObjectType:Int{
-        case OBJECT_TYPE_REGION = 0
-        case OBJECT_TYPE_LOCATION
-        case OBJECT_TYPE_USERS
+        case object_TYPE_REGION = 0
+        case object_TYPE_LOCATION
+        case object_TYPE_USERS
     }
 
 }
